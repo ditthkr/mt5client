@@ -8,17 +8,17 @@ type OrderService struct {
 }
 
 // GetOpened ดึงคำสั่งที่เปิดอยู่ทั้งหมด
-func (s *OrderService) GetOpened() ([]Order, error) {
-	if s.client.token == "" {
+func (r *OrderService) GetOpened() ([]Order, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var orders []Order
-	err := s.client.get("/OpenedOrders", queryParams, &orders)
+	err := r.client.get("/OpenedOrders", queryParams, &orders)
 	if err != nil {
 		return nil, err
 	}
@@ -27,18 +27,18 @@ func (s *OrderService) GetOpened() ([]Order, error) {
 }
 
 // GetOpenedByTicket ดึงคำสั่งที่เปิดอยู่ตาม ticket
-func (s *OrderService) GetOpenedByTicket(ticket int64) (*Order, error) {
-	if s.client.token == "" {
+func (r *OrderService) GetOpenedByTicket(ticket int64) (*Order, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"ticket": fmt.Sprintf("%d", ticket),
 	}
 
 	var order Order
-	err := s.client.get("/OpenedOrder", queryParams, &order)
+	err := r.client.get("/OpenedOrder", queryParams, &order)
 	if err != nil {
 		return nil, err
 	}
@@ -47,17 +47,17 @@ func (s *OrderService) GetOpenedByTicket(ticket int64) (*Order, error) {
 }
 
 // GetOpenedTickets ดึง tickets ของคำสั่งที่เปิดอยู่
-func (s *OrderService) GetOpenedTickets() ([]int64, error) {
-	if s.client.token == "" {
+func (r *OrderService) GetOpenedTickets() ([]int64, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var tickets []int64
-	err := s.client.get("/OpenedOrdersTickets", queryParams, &tickets)
+	err := r.client.get("/OpenedOrdersTickets", queryParams, &tickets)
 	if err != nil {
 		return nil, err
 	}
@@ -66,19 +66,19 @@ func (s *OrderService) GetOpenedTickets() ([]int64, error) {
 }
 
 // GetClosed ดึงคำสั่งที่ปิดแล้ว
-func (s *OrderService) GetClosed(from, to string) ([]Order, error) {
-	if s.client.token == "" {
+func (r *OrderService) GetClosed(from, to string) ([]Order, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":   s.client.token,
+		"id":   r.client.token,
 		"from": from,
 		"to":   to,
 	}
 
 	var orders []Order
-	err := s.client.get("/ClosedOrders", queryParams, &orders)
+	err := r.client.get("/ClosedOrders", queryParams, &orders)
 	if err != nil {
 		return nil, err
 	}
@@ -87,19 +87,19 @@ func (s *OrderService) GetClosed(from, to string) ([]Order, error) {
 }
 
 // GetPendingHistory ดึงประวัติคำสั่ง pending
-func (s *OrderService) GetPendingHistory(from, to string) ([]Order, error) {
-	if s.client.token == "" {
+func (r *OrderService) GetPendingHistory(from, to string) ([]Order, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":   s.client.token,
+		"id":   r.client.token,
 		"from": from,
 		"to":   to,
 	}
 
 	var orders []Order
-	err := s.client.get("/PendingOrderHistory", queryParams, &orders)
+	err := r.client.get("/PendingOrderHistory", queryParams, &orders)
 	if err != nil {
 		return nil, err
 	}

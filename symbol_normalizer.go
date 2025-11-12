@@ -19,9 +19,9 @@ type SymbolNormalizer struct {
 }
 
 // NewSymbolNormalizer สร้าง normalizer ใหม่
-func (c *Client) NewSymbolNormalizer() *SymbolNormalizer {
+func (r *Client) NewSymbolNormalizer() *SymbolNormalizer {
 	return &SymbolNormalizer{
-		client:        c,
+		client:        r,
 		symbolMap:     make(map[string]string),
 		cacheDuration: time.Hour, // cache 1 ชั่วโมง
 		aliasMap:      getDefaultAliasMap(),

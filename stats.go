@@ -8,17 +8,17 @@ type StatsService struct {
 }
 
 // GetTradeStats ดึงสถิติการเทรดทั้งหมด
-func (s *StatsService) GetTradeStats() (*TradeStats, error) {
-	if s.client.token == "" {
+func (r *StatsService) GetTradeStats() (*TradeStats, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var stats TradeStats
-	err := s.client.get("/TradeStats", queryParams, &stats)
+	err := r.client.get("/TradeStats", queryParams, &stats)
 	if err != nil {
 		return nil, err
 	}
@@ -27,19 +27,19 @@ func (s *StatsService) GetTradeStats() (*TradeStats, error) {
 }
 
 // GetEquityHistory ดึงประวัติ Equity (สำหรับกราฟ)
-func (s *StatsService) GetEquityHistory(from, to string) ([]map[string]interface{}, error) {
-	if s.client.token == "" {
+func (r *StatsService) GetEquityHistory(from, to string) ([]map[string]interface{}, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":   s.client.token,
+		"id":   r.client.token,
 		"from": from,
 		"to":   to,
 	}
 
 	var history []map[string]interface{}
-	err := s.client.get("/TradeStatsEquityHistory", queryParams, &history)
+	err := r.client.get("/TradeStatsEquityHistory", queryParams, &history)
 	if err != nil {
 		return nil, err
 	}

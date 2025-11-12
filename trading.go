@@ -8,13 +8,13 @@ type TradingService struct {
 }
 
 // Send ส่งคำสั่งซื้อขาย
-func (s *TradingService) Send(req OrderRequest) (*TradeResult, error) {
-	if s.client.token == "" {
+func (r *TradingService) Send(req OrderRequest) (*TradeResult, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": req.Symbol,
 		"type":   req.Type,
 		"volume": fmt.Sprintf("%.2f", req.Volume),
@@ -37,7 +37,7 @@ func (s *TradingService) Send(req OrderRequest) (*TradeResult, error) {
 	}
 
 	var result TradeResult
-	err := s.client.get("/OrderSend", queryParams, &result)
+	err := r.client.get("/OrderSend", queryParams, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func (s *TradingService) Send(req OrderRequest) (*TradeResult, error) {
 }
 
 // Buy ซื้อทันที
-func (s *TradingService) Buy(symbol string, volume float64, sl, tp float64) (*TradeResult, error) {
-	return s.Send(OrderRequest{
+func (r *TradingService) Buy(symbol string, volume float64, sl, tp float64) (*TradeResult, error) {
+	return r.Send(OrderRequest{
 		Symbol:     symbol,
 		Type:       "Buy",
 		Volume:     volume,
@@ -57,8 +57,8 @@ func (s *TradingService) Buy(symbol string, volume float64, sl, tp float64) (*Tr
 }
 
 // Sell ขายทันที
-func (s *TradingService) Sell(symbol string, volume float64, sl, tp float64) (*TradeResult, error) {
-	return s.Send(OrderRequest{
+func (r *TradingService) Sell(symbol string, volume float64, sl, tp float64) (*TradeResult, error) {
+	return r.Send(OrderRequest{
 		Symbol:     symbol,
 		Type:       "Sell",
 		Volume:     volume,
@@ -68,13 +68,13 @@ func (s *TradingService) Sell(symbol string, volume float64, sl, tp float64) (*T
 }
 
 // Modify แก้ไขคำสั่ง
-func (s *TradingService) Modify(ticket int64, price, sl, tp float64) error {
-	if s.client.token == "" {
+func (r *TradingService) Modify(ticket int64, price, sl, tp float64) error {
+	if r.client.token == "" {
 		return fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"ticket": fmt.Sprintf("%d", ticket),
 	}
 
@@ -89,18 +89,18 @@ func (s *TradingService) Modify(ticket int64, price, sl, tp float64) error {
 	}
 
 	var result string
-	err := s.client.get("/OrderModify", queryParams, &result)
+	err := r.client.get("/OrderModify", queryParams, &result)
 	return err
 }
 
 // Close ปิดคำสั่ง
-func (s *TradingService) Close(ticket int64, volume float64) error {
-	if s.client.token == "" {
+func (r *TradingService) Close(ticket int64, volume float64) error {
+	if r.client.token == "" {
 		return fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"ticket": fmt.Sprintf("%d", ticket),
 	}
 
@@ -109,6 +109,6 @@ func (s *TradingService) Close(ticket int64, volume float64) error {
 	}
 
 	var result string
-	err := s.client.get("/OrderClose", queryParams, &result)
+	err := r.client.get("/OrderClose", queryParams, &result)
 	return err
 }

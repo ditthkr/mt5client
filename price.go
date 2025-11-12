@@ -8,20 +8,20 @@ type PriceService struct {
 }
 
 // GetHistory ดึงประวัติราคา
-func (s *PriceService) GetHistory(symbol, timeframe string, count int) ([]Bar, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistory(symbol, timeframe string, count int) ([]Bar, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":        s.client.token,
+		"id":        r.client.token,
 		"symbol":    symbol,
 		"timeframe": timeframe,
 		"count":     fmt.Sprintf("%d", count),
 	}
 
 	var bars []Bar
-	err := s.client.get("/PriceHistory", queryParams, &bars)
+	err := r.client.get("/PriceHistory", queryParams, &bars)
 	if err != nil {
 		return nil, err
 	}
@@ -30,13 +30,13 @@ func (s *PriceService) GetHistory(symbol, timeframe string, count int) ([]Bar, e
 }
 
 // GetHistoryEx ดึงประวัติราคาแบบ Extended
-func (s *PriceService) GetHistoryEx(symbol, timeframe, from, to string) ([]Bar, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistoryEx(symbol, timeframe, from, to string) ([]Bar, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":        s.client.token,
+		"id":        r.client.token,
 		"symbol":    symbol,
 		"timeframe": timeframe,
 		"from":      from,
@@ -44,7 +44,7 @@ func (s *PriceService) GetHistoryEx(symbol, timeframe, from, to string) ([]Bar, 
 	}
 
 	var bars []Bar
-	err := s.client.get("/PriceHistoryEx", queryParams, &bars)
+	err := r.client.get("/PriceHistoryEx", queryParams, &bars)
 	if err != nil {
 		return nil, err
 	}
@@ -53,13 +53,13 @@ func (s *PriceService) GetHistoryEx(symbol, timeframe, from, to string) ([]Bar, 
 }
 
 // GetHistoryMany ดึงประวัติหลายสัญลักษณ์
-func (s *PriceService) GetHistoryMany(symbols []string, timeframe string, count int) (map[string][]Bar, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistoryMany(symbols []string, timeframe string, count int) (map[string][]Bar, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":        s.client.token,
+		"id":        r.client.token,
 		"timeframe": timeframe,
 		"count":     fmt.Sprintf("%d", count),
 	}
@@ -69,7 +69,7 @@ func (s *PriceService) GetHistoryMany(symbols []string, timeframe string, count 
 	}
 
 	var result map[string][]Bar
-	err := s.client.get("/PriceHistoryMany", queryParams, &result)
+	err := r.client.get("/PriceHistoryMany", queryParams, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -78,13 +78,13 @@ func (s *PriceService) GetHistoryMany(symbols []string, timeframe string, count 
 }
 
 // GetHistoryExMany ดึงประวัติแบบ Extended หลายสัญลักษณ์
-func (s *PriceService) GetHistoryExMany(symbols []string, timeframe, from, to string) (map[string][]Bar, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistoryExMany(symbols []string, timeframe, from, to string) (map[string][]Bar, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":        s.client.token,
+		"id":        r.client.token,
 		"timeframe": timeframe,
 		"from":      from,
 		"to":        to,
@@ -95,7 +95,7 @@ func (s *PriceService) GetHistoryExMany(symbols []string, timeframe, from, to st
 	}
 
 	var result map[string][]Bar
-	err := s.client.get("/PriceHistoryExMany", queryParams, &result)
+	err := r.client.get("/PriceHistoryExMany", queryParams, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -104,20 +104,20 @@ func (s *PriceService) GetHistoryExMany(symbols []string, timeframe, from, to st
 }
 
 // GetHistoryHighLow ดึง High/Low ในช่วงเวลา
-func (s *PriceService) GetHistoryHighLow(symbol, from, to string) (map[string]float64, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistoryHighLow(symbol, from, to string) (map[string]float64, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 		"from":   from,
 		"to":     to,
 	}
 
 	var result map[string]float64
-	err := s.client.get("/PriceHistoryHighLow", queryParams, &result)
+	err := r.client.get("/PriceHistoryHighLow", queryParams, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -126,19 +126,19 @@ func (s *PriceService) GetHistoryHighLow(symbol, from, to string) (map[string]fl
 }
 
 // GetHistoryToday ดึงประวัติวันนี้
-func (s *PriceService) GetHistoryToday(symbol, timeframe string) ([]Bar, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistoryToday(symbol, timeframe string) ([]Bar, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":        s.client.token,
+		"id":        r.client.token,
 		"symbol":    symbol,
 		"timeframe": timeframe,
 	}
 
 	var bars []Bar
-	err := s.client.get("/PriceHistoryToday", queryParams, &bars)
+	err := r.client.get("/PriceHistoryToday", queryParams, &bars)
 	if err != nil {
 		return nil, err
 	}
@@ -147,13 +147,13 @@ func (s *PriceService) GetHistoryToday(symbol, timeframe string) ([]Bar, error) 
 }
 
 // GetHistoryTodayMany ดึงประวัติวันนี้หลายสัญลักษณ์
-func (s *PriceService) GetHistoryTodayMany(symbols []string, timeframe string) (map[string][]Bar, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistoryTodayMany(symbols []string, timeframe string) (map[string][]Bar, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":        s.client.token,
+		"id":        r.client.token,
 		"timeframe": timeframe,
 	}
 
@@ -162,7 +162,7 @@ func (s *PriceService) GetHistoryTodayMany(symbols []string, timeframe string) (
 	}
 
 	var result map[string][]Bar
-	err := s.client.get("/PriceHistoryTodayMany", queryParams, &result)
+	err := r.client.get("/PriceHistoryTodayMany", queryParams, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -171,13 +171,13 @@ func (s *PriceService) GetHistoryTodayMany(symbols []string, timeframe string) (
 }
 
 // GetHistoryMonth ดึงประวัติรายเดือน
-func (s *PriceService) GetHistoryMonth(symbol, timeframe string, year, month int) ([]Bar, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistoryMonth(symbol, timeframe string, year, month int) ([]Bar, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":        s.client.token,
+		"id":        r.client.token,
 		"symbol":    symbol,
 		"timeframe": timeframe,
 		"year":      fmt.Sprintf("%d", year),
@@ -185,7 +185,7 @@ func (s *PriceService) GetHistoryMonth(symbol, timeframe string, year, month int
 	}
 
 	var bars []Bar
-	err := s.client.get("/PriceHistoryMonth", queryParams, &bars)
+	err := r.client.get("/PriceHistoryMonth", queryParams, &bars)
 	if err != nil {
 		return nil, err
 	}
@@ -194,13 +194,13 @@ func (s *PriceService) GetHistoryMonth(symbol, timeframe string, year, month int
 }
 
 // GetHistoryMonthMany ดึงประวัติรายเดือนหลายสัญลักษณ์
-func (s *PriceService) GetHistoryMonthMany(symbols []string, timeframe string, year, month int) (map[string][]Bar, error) {
-	if s.client.token == "" {
+func (r *PriceService) GetHistoryMonthMany(symbols []string, timeframe string, year, month int) (map[string][]Bar, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":        s.client.token,
+		"id":        r.client.token,
 		"timeframe": timeframe,
 		"year":      fmt.Sprintf("%d", year),
 		"month":     fmt.Sprintf("%d", month),
@@ -211,7 +211,7 @@ func (s *PriceService) GetHistoryMonthMany(symbols []string, timeframe string, y
 	}
 
 	var result map[string][]Bar
-	err := s.client.get("/PriceHistoryMonthMany", queryParams, &result)
+	err := r.client.get("/PriceHistoryMonthMany", queryParams, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -220,34 +220,34 @@ func (s *PriceService) GetHistoryMonthMany(symbols []string, timeframe string, y
 }
 
 // RequestTickHistory ขอประวัติ tick
-func (s *PriceService) RequestTickHistory(symbol, from, to string) error {
-	if s.client.token == "" {
+func (r *PriceService) RequestTickHistory(symbol, from, to string) error {
+	if r.client.token == "" {
 		return fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 		"from":   from,
 		"to":     to,
 	}
 
 	var result string
-	err := s.client.get("/TickHistoryRequest", queryParams, &result)
+	err := r.client.get("/TickHistoryRequest", queryParams, &result)
 	return err
 }
 
 // StopTickHistory หยุดการขอประวัติ tick
-func (s *PriceService) StopTickHistory() error {
-	if s.client.token == "" {
+func (r *PriceService) StopTickHistory() error {
+	if r.client.token == "" {
 		return fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var result string
-	err := s.client.get("/TickHistoryStop", queryParams, &result)
+	err := r.client.get("/TickHistoryStop", queryParams, &result)
 	return err
 }

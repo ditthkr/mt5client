@@ -8,32 +8,32 @@ type ServiceFunctions struct {
 }
 
 // GetVersion ดึงเวอร์ชันของ API
-func (s *ServiceFunctions) GetVersion() (string, error) {
+func (r *ServiceFunctions) GetVersion() (string, error) {
 	var version string
-	err := s.client.get("/Version", nil, &version)
+	err := r.client.get("/Version", nil, &version)
 	return version, err
 }
 
 // Ping ทดสอบการเชื่อมต่อ
-func (s *ServiceFunctions) Ping() (string, error) {
+func (r *ServiceFunctions) Ping() (string, error) {
 	var result string
-	err := s.client.get("/Ping", nil, &result)
+	err := r.client.get("/Ping", nil, &result)
 	return result, err
 }
 
 // PingHost ทดสอบการเชื่อมต่อไปยัง host
-func (s *ServiceFunctions) PingHost(host string) (bool, error) {
+func (r *ServiceFunctions) PingHost(host string) (bool, error) {
 	queryParams := map[string]string{
 		"host": host,
 	}
 
 	var result bool
-	err := s.client.get("/PingHost", queryParams, &result)
+	err := r.client.get("/PingHost", queryParams, &result)
 	return result, err
 }
 
 // PingHostMany ทดสอบหลาย hosts
-func (s *ServiceFunctions) PingHostMany(hosts []string) (map[string]bool, error) {
+func (r *ServiceFunctions) PingHostMany(hosts []string) (map[string]bool, error) {
 	queryParams := map[string]string{}
 
 	for i, host := range hosts {
@@ -41,75 +41,75 @@ func (s *ServiceFunctions) PingHostMany(hosts []string) (map[string]bool, error)
 	}
 
 	var results map[string]bool
-	err := s.client.get("/PingHostMany", queryParams, &results)
+	err := r.client.get("/PingHostMany", queryParams, &results)
 	return results, err
 }
 
 // Search ค้นหาสัญลักษณ์
-func (s *ServiceFunctions) Search(keyword string) ([]string, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) Search(keyword string) ([]string, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":      s.client.token,
+		"id":      r.client.token,
 		"keyword": keyword,
 	}
 
 	var results []string
-	err := s.client.get("/Search", queryParams, &results)
+	err := r.client.get("/Search", queryParams, &results)
 	return results, err
 }
 
 // GetServerTimezone ดึงข้อมูล timezone ของ server
-func (s *ServiceFunctions) GetServerTimezone() (string, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) GetServerTimezone() (string, error) {
+	if r.client.token == "" {
 		return "", fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var timezone string
-	err := s.client.get("/ServerTimezone", queryParams, &timezone)
+	err := r.client.get("/ServerTimezone", queryParams, &timezone)
 	return timezone, err
 }
 
 // GetClusterDetails ดึงข้อมูล cluster
-func (s *ServiceFunctions) GetClusterDetails() (map[string]interface{}, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) GetClusterDetails() (map[string]interface{}, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var details map[string]interface{}
-	err := s.client.get("/ClusterDetails", queryParams, &details)
+	err := r.client.get("/ClusterDetails", queryParams, &details)
 	return details, err
 }
 
 // ChangePassword เปลี่ยนรหัสผ่าน
-func (s *ServiceFunctions) ChangePassword(oldPassword, newPassword string) error {
-	if s.client.token == "" {
+func (r *ServiceFunctions) ChangePassword(oldPassword, newPassword string) error {
+	if r.client.token == "" {
 		return fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":          s.client.token,
+		"id":          r.client.token,
 		"oldPassword": oldPassword,
 		"newPassword": newPassword,
 	}
 
 	var result string
-	err := s.client.get("/ChangePassword", queryParams, &result)
+	err := r.client.get("/ChangePassword", queryParams, &result)
 	return err
 }
 
 // GetDemo ขอบัญชี demo
-func (s *ServiceFunctions) GetDemo(server, name, email string) (map[string]interface{}, error) {
+func (r *ServiceFunctions) GetDemo(server, name, email string) (map[string]interface{}, error) {
 	queryParams := map[string]string{
 		"server": server,
 		"name":   name,
@@ -117,50 +117,50 @@ func (s *ServiceFunctions) GetDemo(server, name, email string) (map[string]inter
 	}
 
 	var result map[string]interface{}
-	err := s.client.get("/GetDemo", queryParams, &result)
+	err := r.client.get("/GetDemo", queryParams, &result)
 	return result, err
 }
 
 // GetRequiredMargin คำนวณ margin ที่ต้องการ
-func (s *ServiceFunctions) GetRequiredMargin(symbol string, volume float64) (float64, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) GetRequiredMargin(symbol string, volume float64) (float64, error) {
+	if r.client.token == "" {
 		return 0, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 		"volume": fmt.Sprintf("%.2f", volume),
 	}
 
 	var margin float64
-	err := s.client.get("/RequiredMargin", queryParams, &margin)
+	err := r.client.get("/RequiredMargin", queryParams, &margin)
 	return margin, err
 }
 
 // GetMails ดึงอีเมล
-func (s *ServiceFunctions) GetMails() ([]Mail, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) GetMails() ([]Mail, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var mails []Mail
-	err := s.client.get("/Mails", queryParams, &mails)
+	err := r.client.get("/Mails", queryParams, &mails)
 	return mails, err
 }
 
 // GetMarketWatchMany ดึง market watch หลายสัญลักษณ์
-func (s *ServiceFunctions) GetMarketWatchMany(symbols []string) ([]MarketWatch, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) GetMarketWatchMany(symbols []string) ([]MarketWatch, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	for i, symbol := range symbols {
@@ -168,51 +168,51 @@ func (s *ServiceFunctions) GetMarketWatchMany(symbols []string) ([]MarketWatch, 
 	}
 
 	var marketWatch []MarketWatch
-	err := s.client.get("/MarketWatchMany", queryParams, &marketWatch)
+	err := r.client.get("/MarketWatchMany", queryParams, &marketWatch)
 	return marketWatch, err
 }
 
 // GetQuoteClient ดึงข้อมูล quote client
-func (s *ServiceFunctions) GetQuoteClient() (map[string]interface{}, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) GetQuoteClient() (map[string]interface{}, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var client map[string]interface{}
-	err := s.client.get("/QuoteClient", queryParams, &client)
+	err := r.client.get("/QuoteClient", queryParams, &client)
 	return client, err
 }
 
 // LoadServersDat โหลดไฟล์ servers.dat
-func (s *ServiceFunctions) LoadServersDat(data []byte) error {
+func (r *ServiceFunctions) LoadServersDat(data []byte) error {
 	var result string
-	err := s.client.post("/LoadServersDat", nil, data, &result)
+	err := r.client.post("/LoadServersDat", nil, data, &result)
 	return err
 }
 
 // GetMetricsApiKey ดึง API key สำหรับ metrics
-func (s *ServiceFunctions) GetMetricsApiKey() (string, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) GetMetricsApiKey() (string, error) {
+	if r.client.token == "" {
 		return "", fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var apiKey string
-	err := s.client.get("/MetricsApiKey", queryParams, &apiKey)
+	err := r.client.get("/MetricsApiKey", queryParams, &apiKey)
 	return apiKey, err
 }
 
 // GetReadMe ดึง README
-func (s *ServiceFunctions) GetReadMe() (string, error) {
+func (r *ServiceFunctions) GetReadMe() (string, error) {
 	var readme string
-	err := s.client.get("/ReadMe", nil, &readme)
+	err := r.client.get("/ReadMe", nil, &readme)
 	return readme, err
 }
 
@@ -238,8 +238,8 @@ type LotSizeResult struct {
 
 // CalculateLotSize คำนวณ lot size จาก risk amount (เงิน)
 // สูตร: Lot Size = Risk Amount / (Point Distance × Tick Value)
-func (s *ServiceFunctions) CalculateLotSize(symbol string, entryPrice, stopLoss, riskAmount float64) (*LotSizeResult, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) CalculateLotSize(symbol string, entryPrice, stopLoss, riskAmount float64) (*LotSizeResult, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
@@ -253,7 +253,7 @@ func (s *ServiceFunctions) CalculateLotSize(symbol string, entryPrice, stopLoss,
 
 	// ถ้า entryPrice = 0 ให้ใช้ราคา market ปัจจุบัน
 	if entryPrice == 0 {
-		quote, err := s.client.Quote.Get(symbol)
+		quote, err := r.client.Quote.Get(symbol)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get current price: %w", err)
 		}
@@ -277,7 +277,7 @@ func (s *ServiceFunctions) CalculateLotSize(symbol string, entryPrice, stopLoss,
 	}
 
 	// ดึงข้อมูล Symbol เพื่อได้ Point value
-	symbolParams, err := s.client.Symbol.GetParams(symbol)
+	symbolParams, err := r.client.Symbol.GetParams(symbol)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get symbol info: %w", err)
 	}
@@ -289,7 +289,7 @@ func (s *ServiceFunctions) CalculateLotSize(symbol string, entryPrice, stopLoss,
 	// คำนวณ Tick Value ถ้า API ส่งมาเป็น 0
 	tickValue := symbolParams.SymbolInfo.TickValue
 	if tickValue <= 0 {
-		tickValue, err = s.calculateTickValue(&symbolParams.SymbolInfo, symbol)
+		tickValue, err = r.calculateTickValue(&symbolParams.SymbolInfo, symbol)
 		if err != nil {
 			return nil, fmt.Errorf("failed to calculate tick value: %w", err)
 		}
@@ -331,8 +331,8 @@ func (s *ServiceFunctions) CalculateLotSize(symbol string, entryPrice, stopLoss,
 }
 
 // CalculateLotSizeByPercent คำนวณ lot size จาก risk % ของพอร์ต
-func (s *ServiceFunctions) CalculateLotSizeByPercent(symbol string, entryPrice, stopLoss, riskPercent float64) (*LotSizeResult, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) CalculateLotSizeByPercent(symbol string, entryPrice, stopLoss, riskPercent float64) (*LotSizeResult, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
@@ -341,7 +341,7 @@ func (s *ServiceFunctions) CalculateLotSizeByPercent(symbol string, entryPrice, 
 	}
 
 	// ดึงข้อมูลบัญชีเพื่อได้ Balance
-	account, err := s.client.Account.GetInfo()
+	account, err := r.client.Account.GetInfo()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get account info: %w", err)
 	}
@@ -350,12 +350,12 @@ func (s *ServiceFunctions) CalculateLotSizeByPercent(symbol string, entryPrice, 
 	riskAmount := account.Balance * (riskPercent / 100.0)
 
 	// เรียกใช้ CalculateLotSize
-	return s.CalculateLotSize(symbol, entryPrice, stopLoss, riskAmount)
+	return r.CalculateLotSize(symbol, entryPrice, stopLoss, riskAmount)
 }
 
 // CalculatePipValue คำนวณมูลค่าต่อ pip สำหรับ lot size ที่กำหนด
-func (s *ServiceFunctions) CalculatePipValue(symbol string, lotSize float64) (float64, error) {
-	if s.client.token == "" {
+func (r *ServiceFunctions) CalculatePipValue(symbol string, lotSize float64) (float64, error) {
+	if r.client.token == "" {
 		return 0, fmt.Errorf("not connected")
 	}
 
@@ -364,7 +364,7 @@ func (s *ServiceFunctions) CalculatePipValue(symbol string, lotSize float64) (fl
 	}
 
 	// ดึงข้อมูล Symbol
-	symbolParams, err := s.client.Symbol.GetParams(symbol)
+	symbolParams, err := r.client.Symbol.GetParams(symbol)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get symbol info: %w", err)
 	}
@@ -372,7 +372,7 @@ func (s *ServiceFunctions) CalculatePipValue(symbol string, lotSize float64) (fl
 	// คำนวณ Tick Value ถ้า API ส่งมาเป็น 0
 	tickValue := symbolParams.SymbolInfo.TickValue
 	if tickValue <= 0 {
-		tickValue, err = s.calculateTickValue(&symbolParams.SymbolInfo, symbol)
+		tickValue, err = r.calculateTickValue(&symbolParams.SymbolInfo, symbol)
 		if err != nil {
 			return 0, fmt.Errorf("failed to calculate tick value: %w", err)
 		}
@@ -392,7 +392,7 @@ func (s *ServiceFunctions) CalculatePipValue(symbol string, lotSize float64) (fl
 }
 
 // calculateTickValue คำนวณ Tick Value เมื่อ API ส่งมาเป็น 0
-func (s *ServiceFunctions) calculateTickValue(symbolInfo *SymbolInfo, symbol string) (float64, error) {
+func (r *ServiceFunctions) calculateTickValue(symbolInfo *SymbolInfo, symbol string) (float64, error) {
 	// ตรวจสอบว่ามีข้อมูลที่จำเป็นหรือไม่
 	if symbolInfo.Points <= 0 {
 		return 0, fmt.Errorf("invalid points value for %s", symbol)
@@ -412,7 +412,7 @@ func (s *ServiceFunctions) calculateTickValue(symbolInfo *SymbolInfo, symbol str
 	// ต้องดึง current price มาใช้คำนวณ
 	if symbolInfo.ProfitCurrency == "JPY" {
 		// ดึง current price
-		quote, err := s.client.Quote.Get(symbol)
+		quote, err := r.client.Quote.Get(symbol)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get quote for %s: %w", symbol, err)
 		}
@@ -431,7 +431,7 @@ func (s *ServiceFunctions) calculateTickValue(symbolInfo *SymbolInfo, symbol str
 	// กรณีที่ 3: ProfitCurrency เป็นสกุลอื่นๆ
 	// ต้องแปลงผ่าน conversion rate
 	// สำหรับตอนนี้จะใช้วิธีประมาณผ่าน Quote API
-	quote, err := s.client.Quote.Get(symbol)
+	quote, err := r.client.Quote.Get(symbol)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get quote for %s: %w", symbol, err)
 	}

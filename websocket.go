@@ -72,9 +72,9 @@ type TickHistoryEvent struct {
 }
 
 // NewWebSocketClient สร้าง WebSocket client
-func (c *Client) NewWebSocketClient() *WebSocketClient {
+func (r *Client) NewWebSocketClient() *WebSocketClient {
 	return &WebSocketClient{
-		client:          c,
+		client:          r,
 		connections:     make(map[string]*websocket.Conn),
 		handlers:        &EventHandlers{},
 		done:            make(chan struct{}),

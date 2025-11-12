@@ -8,17 +8,17 @@ type AccountService struct {
 }
 
 // GetInfo ดึงข้อมูลบัญชีทั้งหมด
-func (s *AccountService) GetInfo() (*Account, error) {
-	if s.client.token == "" {
+func (r *AccountService) GetInfo() (*Account, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var account Account
-	err := s.client.get("/Account", queryParams, &account)
+	err := r.client.get("/Account", queryParams, &account)
 	if err != nil {
 		return nil, err
 	}
@@ -27,17 +27,17 @@ func (s *AccountService) GetInfo() (*Account, error) {
 }
 
 // GetDetails ดึงรายละเอียดบัญชี
-func (s *AccountService) GetDetails() (*Account, error) {
-	if s.client.token == "" {
+func (r *AccountService) GetDetails() (*Account, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var account Account
-	err := s.client.get("/AccountDetails", queryParams, &account)
+	err := r.client.get("/AccountDetails", queryParams, &account)
 	if err != nil {
 		return nil, err
 	}
@@ -46,17 +46,17 @@ func (s *AccountService) GetDetails() (*Account, error) {
 }
 
 // GetSummary ดึงสรุปบัญชี
-func (s *AccountService) GetSummary() (map[string]interface{}, error) {
-	if s.client.token == "" {
+func (r *AccountService) GetSummary() (map[string]interface{}, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var summary map[string]interface{}
-	err := s.client.get("/AccountSummary", queryParams, &summary)
+	err := r.client.get("/AccountSummary", queryParams, &summary)
 	if err != nil {
 		return nil, err
 	}
@@ -65,19 +65,19 @@ func (s *AccountService) GetSummary() (map[string]interface{}, error) {
 }
 
 // GetEquityHistory ดึงประวัติ Equity
-func (s *AccountService) GetEquityHistory(from, to string) ([]map[string]interface{}, error) {
-	if s.client.token == "" {
+func (r *AccountService) GetEquityHistory(from, to string) ([]map[string]interface{}, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":   s.client.token,
+		"id":   r.client.token,
 		"from": from,
 		"to":   to,
 	}
 
 	var history []map[string]interface{}
-	err := s.client.get("/EquityHistory", queryParams, &history)
+	err := r.client.get("/EquityHistory", queryParams, &history)
 	if err != nil {
 		return nil, err
 	}

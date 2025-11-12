@@ -8,18 +8,18 @@ type QuoteService struct {
 }
 
 // Get ดึงราคาของสัญลักษณ์
-func (s *QuoteService) Get(symbol string) (*Quote, error) {
-	if s.client.token == "" {
+func (r *QuoteService) Get(symbol string) (*Quote, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 	}
 
 	var quote Quote
-	err := s.client.get("/GetQuote", queryParams, &quote)
+	err := r.client.get("/GetQuote", queryParams, &quote)
 	if err != nil {
 		return nil, err
 	}
@@ -28,13 +28,13 @@ func (s *QuoteService) Get(symbol string) (*Quote, error) {
 }
 
 // GetMany ดึงราคาหลายสัญลักษณ์
-func (s *QuoteService) GetMany(symbols []string) ([]Quote, error) {
-	if s.client.token == "" {
+func (r *QuoteService) GetMany(symbols []string) ([]Quote, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	// เพิ่ม symbols เป็น array
@@ -43,7 +43,7 @@ func (s *QuoteService) GetMany(symbols []string) ([]Quote, error) {
 	}
 
 	var quotes []Quote
-	err := s.client.get("/GetQuoteMany", queryParams, &quotes)
+	err := r.client.get("/GetQuoteMany", queryParams, &quotes)
 	if err != nil {
 		return nil, err
 	}
@@ -52,13 +52,13 @@ func (s *QuoteService) GetMany(symbols []string) ([]Quote, error) {
 }
 
 // GetTickValueMany ดึง tick value หลายสัญลักษณ์
-func (s *QuoteService) GetTickValueMany(symbols []string) (map[string]float64, error) {
-	if s.client.token == "" {
+func (r *QuoteService) GetTickValueMany(symbols []string) (map[string]float64, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	for i, symbol := range symbols {
@@ -66,7 +66,7 @@ func (s *QuoteService) GetTickValueMany(symbols []string) (map[string]float64, e
 	}
 
 	var tickValues map[string]float64
-	err := s.client.get("/GetTickValueMany", queryParams, &tickValues)
+	err := r.client.get("/GetTickValueMany", queryParams, &tickValues)
 	if err != nil {
 		return nil, err
 	}
@@ -75,19 +75,19 @@ func (s *QuoteService) GetTickValueMany(symbols []string) (map[string]float64, e
 }
 
 // GetTickValueWithSize ดึง tick value พร้อมขนาด
-func (s *QuoteService) GetTickValueWithSize(symbol string, volume float64) (float64, error) {
-	if s.client.token == "" {
+func (r *QuoteService) GetTickValueWithSize(symbol string, volume float64) (float64, error) {
+	if r.client.token == "" {
 		return 0, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 		"volume": fmt.Sprintf("%.2f", volume),
 	}
 
 	var tickValue float64
-	err := s.client.get("/TickValueWithSize", queryParams, &tickValue)
+	err := r.client.get("/TickValueWithSize", queryParams, &tickValue)
 	if err != nil {
 		return 0, err
 	}
@@ -96,18 +96,18 @@ func (s *QuoteService) GetTickValueWithSize(symbol string, volume float64) (floa
 }
 
 // IsQuoteSession ตรวจสอบว่าอยู่ในเซสชันราคาหรือไม่
-func (s *QuoteService) IsQuoteSession(symbol string) (bool, error) {
-	if s.client.token == "" {
+func (r *QuoteService) IsQuoteSession(symbol string) (bool, error) {
+	if r.client.token == "" {
 		return false, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 	}
 
 	var result bool
-	err := s.client.get("/IsQuoteSession", queryParams, &result)
+	err := r.client.get("/IsQuoteSession", queryParams, &result)
 	if err != nil {
 		return false, err
 	}
@@ -116,13 +116,13 @@ func (s *QuoteService) IsQuoteSession(symbol string) (bool, error) {
 }
 
 // IsQuoteSessionMany ตรวจสอบหลายสัญลักษณ์
-func (s *QuoteService) IsQuoteSessionMany(symbols []string) (map[string]bool, error) {
-	if s.client.token == "" {
+func (r *QuoteService) IsQuoteSessionMany(symbols []string) (map[string]bool, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	for i, symbol := range symbols {
@@ -130,7 +130,7 @@ func (s *QuoteService) IsQuoteSessionMany(symbols []string) (map[string]bool, er
 	}
 
 	var results map[string]bool
-	err := s.client.get("/IsQuoteSessionMany", queryParams, &results)
+	err := r.client.get("/IsQuoteSessionMany", queryParams, &results)
 	if err != nil {
 		return nil, err
 	}
@@ -139,18 +139,18 @@ func (s *QuoteService) IsQuoteSessionMany(symbols []string) (map[string]bool, er
 }
 
 // IsTradeSession ตรวจสอบว่าอยู่ในเซสชันเทรดหรือไม่
-func (s *QuoteService) IsTradeSession(symbol string) (bool, error) {
-	if s.client.token == "" {
+func (r *QuoteService) IsTradeSession(symbol string) (bool, error) {
+	if r.client.token == "" {
 		return false, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 	}
 
 	var result bool
-	err := s.client.get("/IsTradeSession", queryParams, &result)
+	err := r.client.get("/IsTradeSession", queryParams, &result)
 	if err != nil {
 		return false, err
 	}
@@ -159,13 +159,13 @@ func (s *QuoteService) IsTradeSession(symbol string) (bool, error) {
 }
 
 // IsTradeSessionMany ตรวจสอบหลายสัญลักษณ์
-func (s *QuoteService) IsTradeSessionMany(symbols []string) (map[string]bool, error) {
-	if s.client.token == "" {
+func (r *QuoteService) IsTradeSessionMany(symbols []string) (map[string]bool, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	for i, symbol := range symbols {
@@ -173,7 +173,7 @@ func (s *QuoteService) IsTradeSessionMany(symbols []string) (map[string]bool, er
 	}
 
 	var results map[string]bool
-	err := s.client.get("/IsTradeSessionMany", queryParams, &results)
+	err := r.client.get("/IsTradeSessionMany", queryParams, &results)
 	if err != nil {
 		return nil, err
 	}

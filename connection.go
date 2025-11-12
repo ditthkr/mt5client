@@ -8,7 +8,7 @@ type ConnectionService struct {
 }
 
 // Connect เชื่อมต่อ MT5
-func (s *ConnectionService) Connect(params ConnectParams) (string, error) {
+func (r *ConnectionService) Connect(params ConnectParams) (string, error) {
 	queryParams := map[string]string{
 		"user":     fmt.Sprintf("%d", params.User),
 		"password": params.Password,
@@ -17,17 +17,17 @@ func (s *ConnectionService) Connect(params ConnectParams) (string, error) {
 	}
 
 	var token string
-	err := s.client.get("/Connect", queryParams, &token)
+	err := r.client.get("/Connect", queryParams, &token)
 	if err != nil {
 		return "", err
 	}
 
-	s.client.SetToken(token)
+	r.client.SetToken(token)
 	return token, nil
 }
 
 // ConnectEx เชื่อมต่อแบบ Extended (ใช้ชื่อ server แทน host/port)
-func (s *ConnectionService) ConnectEx(user int64, password, server string) (string, error) {
+func (r *ConnectionService) ConnectEx(user int64, password, server string) (string, error) {
 	queryParams := map[string]string{
 		"user":     fmt.Sprintf("%d", user),
 		"password": password,
@@ -35,17 +35,17 @@ func (s *ConnectionService) ConnectEx(user int64, password, server string) (stri
 	}
 
 	var token string
-	err := s.client.get("/ConnectEx", queryParams, &token)
+	err := r.client.get("/ConnectEx", queryParams, &token)
 	if err != nil {
 		return "", err
 	}
 
-	s.client.SetToken(token)
+	r.client.SetToken(token)
 	return token, nil
 }
 
 // ConnectProxy เชื่อมต่อผ่าน Proxy
-func (s *ConnectionService) ConnectProxy(params ConnectParams, proxyType, proxyHost string, proxyPort int) (string, error) {
+func (r *ConnectionService) ConnectProxy(params ConnectParams, proxyType, proxyHost string, proxyPort int) (string, error) {
 	queryParams := map[string]string{
 		"user":      fmt.Sprintf("%d", params.User),
 		"password":  params.Password,
@@ -57,47 +57,47 @@ func (s *ConnectionService) ConnectProxy(params ConnectParams, proxyType, proxyH
 	}
 
 	var token string
-	err := s.client.get("/ConnectProxy", queryParams, &token)
+	err := r.client.get("/ConnectProxy", queryParams, &token)
 	if err != nil {
 		return "", err
 	}
 
-	s.client.SetToken(token)
+	r.client.SetToken(token)
 	return token, nil
 }
 
 // Disconnect ตัดการเชื่อมต่อ
-func (s *ConnectionService) Disconnect() error {
-	if s.client.token == "" {
+func (r *ConnectionService) Disconnect() error {
+	if r.client.token == "" {
 		return nil
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var result string
-	err := s.client.get("/Disconnect", queryParams, &result)
+	err := r.client.get("/Disconnect", queryParams, &result)
 	if err != nil {
 		return err
 	}
 
-	s.client.SetToken("")
+	r.client.SetToken("")
 	return nil
 }
 
 // IsConnected ตรวจสอบสถานะการเชื่อมต่อ
-func (s *ConnectionService) IsConnected() (bool, error) {
-	if s.client.token == "" {
+func (r *ConnectionService) IsConnected() (bool, error) {
+	if r.client.token == "" {
 		return false, nil
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var result string
-	err := s.client.get("/CheckConnect", queryParams, &result)
+	err := r.client.get("/CheckConnect", queryParams, &result)
 	if err != nil {
 		return false, err
 	}

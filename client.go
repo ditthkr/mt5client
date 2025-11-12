@@ -59,18 +59,18 @@ func NewClient(baseURL string) *Client {
 }
 
 // SetToken ตั้งค่า token
-func (c *Client) SetToken(token string) {
-	c.token = token
+func (r *Client) SetToken(token string) {
+	r.token = token
 }
 
 // GetToken รับค่า token
-func (c *Client) GetToken() string {
-	return c.token
+func (r *Client) GetToken() string {
+	return r.token
 }
 
 // doRequest ส่ง HTTP request
-func (c *Client) doRequest(method, endpoint string, params map[string]string, body interface{}, result interface{}) error {
-	fullURL := c.baseURL + endpoint
+func (r *Client) doRequest(method, endpoint string, params map[string]string, body interface{}, result interface{}) error {
+	fullURL := r.baseURL + endpoint
 
 	if len(params) > 0 {
 		values := url.Values{}
@@ -96,7 +96,7 @@ func (c *Client) doRequest(method, endpoint string, params map[string]string, bo
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := r.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to send request: %w", err)
 	}
@@ -126,11 +126,11 @@ func (c *Client) doRequest(method, endpoint string, params map[string]string, bo
 }
 
 // get ส่ง GET request
-func (c *Client) get(endpoint string, params map[string]string, result interface{}) error {
-	return c.doRequest("GET", endpoint, params, nil, result)
+func (r *Client) get(endpoint string, params map[string]string, result interface{}) error {
+	return r.doRequest("GET", endpoint, params, nil, result)
 }
 
 // post ส่ง POST request
-func (c *Client) post(endpoint string, params map[string]string, body interface{}, result interface{}) error {
-	return c.doRequest("POST", endpoint, params, body, result)
+func (r *Client) post(endpoint string, params map[string]string, body interface{}, result interface{}) error {
+	return r.doRequest("POST", endpoint, params, body, result)
 }

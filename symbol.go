@@ -8,17 +8,17 @@ type SymbolService struct {
 }
 
 // GetList ดึงรายการสัญลักษณ์ทั้งหมด
-func (s *SymbolService) GetList() ([]string, error) {
-	if s.client.token == "" {
+func (r *SymbolService) GetList() ([]string, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var symbols []string
-	err := s.client.get("/SymbolList", queryParams, &symbols)
+	err := r.client.get("/SymbolList", queryParams, &symbols)
 	if err != nil {
 		return nil, err
 	}
@@ -27,18 +27,18 @@ func (s *SymbolService) GetList() ([]string, error) {
 }
 
 // GetParams ดึงพารามิเตอร์ของสัญลักษณ์
-func (s *SymbolService) GetParams(symbol string) (*SymbolParams, error) {
-	if s.client.token == "" {
+func (r *SymbolService) GetParams(symbol string) (*SymbolParams, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 	}
 
 	var symbolParams SymbolParams
-	err := s.client.get("/SymbolParams", queryParams, &symbolParams)
+	err := r.client.get("/SymbolParams", queryParams, &symbolParams)
 	if err != nil {
 		return nil, err
 	}
@@ -47,13 +47,13 @@ func (s *SymbolService) GetParams(symbol string) (*SymbolParams, error) {
 }
 
 // GetParamsMany ดึงพารามิเตอร์หลายสัญลักษณ์
-func (s *SymbolService) GetParamsMany(symbols []string) ([]SymbolParams, error) {
-	if s.client.token == "" {
+func (r *SymbolService) GetParamsMany(symbols []string) ([]SymbolParams, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	for i, symbol := range symbols {
@@ -61,7 +61,7 @@ func (s *SymbolService) GetParamsMany(symbols []string) ([]SymbolParams, error) 
 	}
 
 	var symbolParams []SymbolParams
-	err := s.client.get("/SymbolParamsMany", queryParams, &symbolParams)
+	err := r.client.get("/SymbolParamsMany", queryParams, &symbolParams)
 	if err != nil {
 		return nil, err
 	}
@@ -70,18 +70,18 @@ func (s *SymbolService) GetParamsMany(symbols []string) ([]SymbolParams, error) 
 }
 
 // GetSessions ดึงข้อมูลเซสชันของสัญลักษณ์
-func (s *SymbolService) GetSessions(symbol string) (map[string]interface{}, error) {
-	if s.client.token == "" {
+func (r *SymbolService) GetSessions(symbol string) (map[string]interface{}, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id":     s.client.token,
+		"id":     r.client.token,
 		"symbol": symbol,
 	}
 
 	var sessions map[string]interface{}
-	err := s.client.get("/SymbolSessions", queryParams, &sessions)
+	err := r.client.get("/SymbolSessions", queryParams, &sessions)
 	if err != nil {
 		return nil, err
 	}
@@ -90,17 +90,17 @@ func (s *SymbolService) GetSessions(symbol string) (map[string]interface{}, erro
 }
 
 // GetAll ดึงสัญลักษณ์ทั้งหมด (รวมข้อมูล)
-func (s *SymbolService) GetAll() ([]SymbolInfo, error) {
-	if s.client.token == "" {
+func (r *SymbolService) GetAll() ([]SymbolInfo, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var symbols []SymbolInfo
-	err := s.client.get("/Symbols", queryParams, &symbols)
+	err := r.client.get("/Symbols", queryParams, &symbols)
 	if err != nil {
 		return nil, err
 	}
@@ -109,17 +109,17 @@ func (s *SymbolService) GetAll() ([]SymbolInfo, error) {
 }
 
 // GetSubscribed ดึงสัญลักษณ์ที่ subscribe อยู่
-func (s *SymbolService) GetSubscribed() ([]string, error) {
-	if s.client.token == "" {
+func (r *SymbolService) GetSubscribed() ([]string, error) {
+	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
 
 	queryParams := map[string]string{
-		"id": s.client.token,
+		"id": r.client.token,
 	}
 
 	var symbols []string
-	err := s.client.get("/SubscribedSymbols", queryParams, &symbols)
+	err := r.client.get("/SubscribedSymbols", queryParams, &symbols)
 	if err != nil {
 		return nil, err
 	}
