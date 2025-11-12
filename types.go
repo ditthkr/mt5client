@@ -109,8 +109,6 @@ type Quote struct {
 	Symbol string    `json:"symbol"`
 	Bid    float64   `json:"bid"`
 	Ask    float64   `json:"ask"`
-	Last   float64   `json:"last"`
-	Volume float64   `json:"volume"`
 	Time   time.Time `json:"time"`
 }
 
