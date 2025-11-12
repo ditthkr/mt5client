@@ -8,7 +8,7 @@ type TradingService struct {
 }
 
 // Send ส่งคำสั่งซื้อขาย
-func (r *TradingService) Send(req OrderRequest) (*TradeResult, error) {
+func (r *TradingService) Send(req OrderRequest) (*Order, error) {
 	if r.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
@@ -36,7 +36,7 @@ func (r *TradingService) Send(req OrderRequest) (*TradeResult, error) {
 		queryParams["magicNumber"] = fmt.Sprintf("%d", req.MagicNumber)
 	}
 
-	var result TradeResult
+	var result Order
 	err := r.client.get("/OrderSend", queryParams, &result)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (r *TradingService) Send(req OrderRequest) (*TradeResult, error) {
 }
 
 // Buy ซื้อทันที
-func (r *TradingService) Buy(symbol string, volume float64, sl, tp float64) (*TradeResult, error) {
+func (r *TradingService) Buy(symbol string, volume float64, sl, tp float64) (*Order, error) {
 	return r.Send(OrderRequest{
 		Symbol:     symbol,
 		Type:       "Buy",
@@ -57,7 +57,7 @@ func (r *TradingService) Buy(symbol string, volume float64, sl, tp float64) (*Tr
 }
 
 // Sell ขายทันที
-func (r *TradingService) Sell(symbol string, volume float64, sl, tp float64) (*TradeResult, error) {
+func (r *TradingService) Sell(symbol string, volume float64, sl, tp float64) (*Order, error) {
 	return r.Send(OrderRequest{
 		Symbol:     symbol,
 		Type:       "Sell",
