@@ -81,14 +81,14 @@ func (o *Order) UnmarshalJSON(data []byte) error {
 
 // OrderRequest พารามิเตอร์สำหรับส่งคำสั่ง
 type OrderRequest struct {
-	Symbol      string  `json:"symbol"`
-	Type        string  `json:"type"`
-	Volume      float64 `json:"volume"`
-	Price       float64 `json:"price,omitempty"`
-	StopLoss    float64 `json:"stopLoss,omitempty"`
-	TakeProfit  float64 `json:"takeProfit,omitempty"`
-	Comment     string  `json:"comment,omitempty"`
-	MagicNumber int64   `json:"magicNumber,omitempty"`
+	Symbol     string  `json:"symbol"`
+	Type       string  `json:"type"`
+	Volume     float64 `json:"volume"`
+	Price      float64 `json:"price,omitempty"`
+	StopLoss   float64 `json:"stoploss,omitempty"`
+	TakeProfit float64 `json:"takeprofit,omitempty"`
+	PlacedType string  `json:"placedType,omitempty"`
+	Comment    string  `json:"comment,omitempty"`
 }
 
 // TradeResult ผลลัพธ์การเทรด

@@ -14,26 +14,27 @@ func (r *TradingService) Send(req OrderRequest) (*Order, error) {
 	}
 
 	queryParams := map[string]string{
-		"id":     r.client.token,
-		"symbol": req.Symbol,
-		"type":   req.Type,
-		"volume": fmt.Sprintf("%.2f", req.Volume),
+		"id":        r.client.token,
+		"symbol":    req.Symbol,
+		"operation": req.Type,
+		"volume":    fmt.Sprintf("%.2f", req.Volume),
 	}
 
 	if req.Price > 0 {
 		queryParams["price"] = fmt.Sprintf("%.5f", req.Price)
 	}
 	if req.StopLoss > 0 {
-		queryParams["stopLoss"] = fmt.Sprintf("%.5f", req.StopLoss)
+		queryParams["stoploss"] = fmt.Sprintf("%.5f", req.StopLoss)
 	}
 	if req.TakeProfit > 0 {
-		queryParams["takeProfit"] = fmt.Sprintf("%.5f", req.TakeProfit)
+		queryParams["takeprofit"] = fmt.Sprintf("%.5f", req.TakeProfit)
+	}
+
+	if req.PlacedType != "" {
+		queryParams["placedType"] = req.PlacedType
 	}
 	if req.Comment != "" {
 		queryParams["comment"] = req.Comment
-	}
-	if req.MagicNumber > 0 {
-		queryParams["magicNumber"] = fmt.Sprintf("%d", req.MagicNumber)
 	}
 
 	var result Order
