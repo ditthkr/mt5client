@@ -215,3 +215,236 @@ func (s *ServiceFunctions) GetReadMe() (string, error) {
 	err := s.client.get("/ReadMe", nil, &readme)
 	return readme, err
 }
+
+// LotSizeParams พารามิเตอร์สำหรับคำนวณ lot size
+type LotSizeParams struct {
+	Symbol      string  // สัญลักษณ์ เช่น EURUSD
+	EntryPrice  float64 // ราคาเข้า
+	StopLoss    float64 // ราคา Stop Loss
+	RiskAmount  float64 // ยอมขาดทุนเป็นเงิน (เช่น 100 = $100)
+	RiskPercent float64 // ยอมขาดทุนเป็น % (เช่น 2.0 = 2% ของพอร์ต)
+}
+
+// LotSizeResult ผลลัพธ์การคำนวณ lot size
+type LotSizeResult struct {
+	LotSize       float64 `json:"lotSize"`       // ขนาด lot ที่คำนวณได้
+	RiskAmount    float64 `json:"riskAmount"`    // จำนวนเงินที่เสี่ยง
+	EntryPrice    float64 `json:"entryPrice"`    // ราคา entry ที่ใช้คำนวณ (ถ้าส่งมาเป็น 0 จะเป็นราคา market)
+	PriceDistance float64 `json:"priceDistance"` // ระยะห่าง entry ถึง SL (เป็น price)
+	PointDistance float64 `json:"pointDistance"` // ระยะห่างเป็น points
+	TickValue     float64 `json:"tickValue"`     // มูลค่าต่อ tick
+	Symbol        string  `json:"symbol"`        // สัญลักษณ์
+}
+
+// CalculateLotSize คำนวณ lot size จาก risk amount (เงิน)
+// สูตร: Lot Size = Risk Amount / (Point Distance × Tick Value)
+func (s *ServiceFunctions) CalculateLotSize(symbol string, entryPrice, stopLoss, riskAmount float64) (*LotSizeResult, error) {
+	if s.client.token == "" {
+		return nil, fmt.Errorf("not connected")
+	}
+
+	if stopLoss <= 0 {
+		return nil, fmt.Errorf("stop loss must be greater than 0")
+	}
+
+	if riskAmount <= 0 {
+		return nil, fmt.Errorf("risk amount must be greater than 0")
+	}
+
+	// ถ้า entryPrice = 0 ให้ใช้ราคา market ปัจจุบัน
+	if entryPrice == 0 {
+		quote, err := s.client.Quote.Get(symbol)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get current price: %w", err)
+		}
+
+		// คำนวณ mid price
+		midPrice := (quote.Bid + quote.Ask) / 2
+
+		// ตัดสินใจว่าเป็น BUY หรือ SELL จาก stopLoss
+		if stopLoss < midPrice {
+			// BUY order: SL ต่ำกว่า market → ซื้อที่ Ask
+			entryPrice = quote.Ask
+		} else if stopLoss > midPrice {
+			// SELL order: SL สูงกว่า market → ขายที่ Bid
+			entryPrice = quote.Bid
+		} else {
+			// SL = midPrice (ไม่น่าเกิด แต่ป้องกันไว้)
+			return nil, fmt.Errorf("stop loss cannot be equal to current market price")
+		}
+	} else if entryPrice < 0 {
+		return nil, fmt.Errorf("entry price must be greater than or equal to 0 (use 0 for market price)")
+	}
+
+	// ดึงข้อมูล Symbol เพื่อได้ Point value
+	symbolParams, err := s.client.Symbol.GetParams(symbol)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get symbol info: %w", err)
+	}
+
+	if symbolParams.SymbolInfo.Points <= 0 {
+		return nil, fmt.Errorf("invalid point value for symbol %s", symbol)
+	}
+
+	// คำนวณ Tick Value ถ้า API ส่งมาเป็น 0
+	tickValue := symbolParams.SymbolInfo.TickValue
+	if tickValue <= 0 {
+		tickValue, err = s.calculateTickValue(&symbolParams.SymbolInfo, symbol)
+		if err != nil {
+			return nil, fmt.Errorf("failed to calculate tick value: %w", err)
+		}
+	}
+
+	// คำนวณระยะห่างราคา
+	priceDistance := entryPrice - stopLoss
+	if priceDistance < 0 {
+		priceDistance = -priceDistance
+	}
+
+	// คำนวณระยะห่างเป็น points
+	pointDistance := priceDistance / symbolParams.SymbolInfo.Points
+
+	// คำนวณ lot size
+	// สูตร: Lot = Risk / (Points × TickValue)
+	lotSize := riskAmount / (pointDistance * tickValue)
+
+	// ปัดเศษให้เป็นทศนิยม 2 ตำแหน่ง (standard lot size)
+	lotSize = float64(int(lotSize*100)) / 100
+
+	// ตรวจสอบขอบเขต lot size
+	if symbolParams.SymbolGroup.MinLots > 0 && lotSize < symbolParams.SymbolGroup.MinLots {
+		lotSize = symbolParams.SymbolGroup.MinLots
+	}
+	if symbolParams.SymbolGroup.MaxLots > 0 && lotSize > symbolParams.SymbolGroup.MaxLots {
+		return nil, fmt.Errorf("calculated lot size (%.2f) exceeds maximum (%.2f)", lotSize, symbolParams.SymbolGroup.MaxLots)
+	}
+
+	return &LotSizeResult{
+		LotSize:       lotSize,
+		RiskAmount:    riskAmount,
+		EntryPrice:    entryPrice,
+		PriceDistance: priceDistance,
+		PointDistance: pointDistance,
+		TickValue:     tickValue,
+		Symbol:        symbol,
+	}, nil
+}
+
+// CalculateLotSizeByPercent คำนวณ lot size จาก risk % ของพอร์ต
+func (s *ServiceFunctions) CalculateLotSizeByPercent(symbol string, entryPrice, stopLoss, riskPercent float64) (*LotSizeResult, error) {
+	if s.client.token == "" {
+		return nil, fmt.Errorf("not connected")
+	}
+
+	if riskPercent <= 0 || riskPercent > 100 {
+		return nil, fmt.Errorf("risk percent must be between 0 and 100")
+	}
+
+	// ดึงข้อมูลบัญชีเพื่อได้ Balance
+	account, err := s.client.Account.GetInfo()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get account info: %w", err)
+	}
+
+	// คำนวณ risk amount จาก % ของ balance
+	riskAmount := account.Balance * (riskPercent / 100.0)
+
+	// เรียกใช้ CalculateLotSize
+	return s.CalculateLotSize(symbol, entryPrice, stopLoss, riskAmount)
+}
+
+// CalculatePipValue คำนวณมูลค่าต่อ pip สำหรับ lot size ที่กำหนด
+func (s *ServiceFunctions) CalculatePipValue(symbol string, lotSize float64) (float64, error) {
+	if s.client.token == "" {
+		return 0, fmt.Errorf("not connected")
+	}
+
+	if lotSize <= 0 {
+		return 0, fmt.Errorf("lot size must be greater than 0")
+	}
+
+	// ดึงข้อมูล Symbol
+	symbolParams, err := s.client.Symbol.GetParams(symbol)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get symbol info: %w", err)
+	}
+
+	// คำนวณ Tick Value ถ้า API ส่งมาเป็น 0
+	tickValue := symbolParams.SymbolInfo.TickValue
+	if tickValue <= 0 {
+		tickValue, err = s.calculateTickValue(&symbolParams.SymbolInfo, symbol)
+		if err != nil {
+			return 0, fmt.Errorf("failed to calculate tick value: %w", err)
+		}
+	}
+
+	// สำหรับ forex ที่มี 5 digits, 1 pip = 10 points
+	// สำหรับ forex ที่มี 3 digits, 1 pip = 1 point
+	pipsPerPoint := 1.0
+	if symbolParams.SymbolInfo.Digits == 5 || symbolParams.SymbolInfo.Digits == 3 {
+		pipsPerPoint = 10.0
+	}
+
+	// Pip Value = Tick Value × Lot Size × pipsPerPoint
+	pipValue := tickValue * lotSize * pipsPerPoint
+
+	return pipValue, nil
+}
+
+// calculateTickValue คำนวณ Tick Value เมื่อ API ส่งมาเป็น 0
+func (s *ServiceFunctions) calculateTickValue(symbolInfo *SymbolInfo, symbol string) (float64, error) {
+	// ตรวจสอบว่ามีข้อมูลที่จำเป็นหรือไม่
+	if symbolInfo.Points <= 0 {
+		return 0, fmt.Errorf("invalid points value for %s", symbol)
+	}
+	if symbolInfo.ContractSize <= 0 {
+		return 0, fmt.Errorf("invalid contract size for %s", symbol)
+	}
+
+	// กรณีที่ 1: ProfitCurrency เป็น USD (เช่น EURUSD, GBPUSD)
+	// TickValue = Points × ContractSize
+	if symbolInfo.ProfitCurrency == "USD" {
+		tickValue := symbolInfo.Points * symbolInfo.ContractSize
+		return tickValue, nil
+	}
+
+	// กรณีที่ 2: ProfitCurrency เป็น JPY (เช่น USDJPY, EURJPY)
+	// ต้องดึง current price มาใช้คำนวณ
+	if symbolInfo.ProfitCurrency == "JPY" {
+		// ดึง current price
+		quote, err := s.client.Quote.Get(symbol)
+		if err != nil {
+			return 0, fmt.Errorf("failed to get quote for %s: %w", symbol, err)
+		}
+
+		// ใช้ mid price (เฉลี่ย bid/ask)
+		currentPrice := (quote.Bid + quote.Ask) / 2
+		if currentPrice <= 0 {
+			return 0, fmt.Errorf("invalid quote price for %s", symbol)
+		}
+
+		// TickValue = (Points × ContractSize) / CurrentPrice
+		tickValue := (symbolInfo.Points * symbolInfo.ContractSize) / currentPrice
+		return tickValue, nil
+	}
+
+	// กรณีที่ 3: ProfitCurrency เป็นสกุลอื่นๆ
+	// ต้องแปลงผ่าน conversion rate
+	// สำหรับตอนนี้จะใช้วิธีประมาณผ่าน Quote API
+	quote, err := s.client.Quote.Get(symbol)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get quote for %s: %w", symbol, err)
+	}
+
+	currentPrice := (quote.Bid + quote.Ask) / 2
+	if currentPrice <= 0 {
+		return 0, fmt.Errorf("invalid quote price for %s", symbol)
+	}
+
+	// ประมาณการ: สำหรับ cross pairs
+	// TickValue = Points × ContractSize / ConversionRate
+	// โดยที่ ConversionRate ต้องหาจาก ProfitCurrency -> USD
+	// ตอนนี้จะ return error และให้ user implement conversion logic เอง
+	return 0, fmt.Errorf("unsupported profit currency %s for symbol %s, manual conversion required",
+		symbolInfo.ProfitCurrency, symbol)
+}
