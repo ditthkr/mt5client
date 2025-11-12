@@ -106,14 +106,12 @@ type TradeResult struct {
 
 // Quote ราคา
 type Quote struct {
-	Symbol    string    `json:"symbol"`
-	Bid       float64   `json:"bid"`
-	Ask       float64   `json:"ask"`
-	Last      float64   `json:"last"`
-	Volume    float64   `json:"volume"`
-	Time      time.Time `json:"time"`
-	Spread    int       `json:"spread"`
-	TickValue float64   `json:"tickValue"`
+	Symbol string    `json:"symbol"`
+	Bid    float64   `json:"bid"`
+	Ask    float64   `json:"ask"`
+	Last   float64   `json:"last"`
+	Volume float64   `json:"volume"`
+	Time   time.Time `json:"time"`
 }
 
 // UnmarshalJSON custom unmarshal สำหรับ Quote
@@ -140,27 +138,76 @@ func (q *Quote) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// Symbol ข้อมูลสัญลักษณ์
-type Symbol struct {
-	Name              string  `json:"name"`
-	Description       string  `json:"description"`
-	Path              string  `json:"path"`
-	Digits            int     `json:"digits"`
-	Point             float64 `json:"point"`
-	Spread            int     `json:"spread"`
-	StopsLevel        int     `json:"stopsLevel"`
-	TradeMode         string  `json:"tradeMode"`
-	VolumeMin         float64 `json:"volumeMin"`
-	VolumeMax         float64 `json:"volumeMax"`
-	VolumeStep        float64 `json:"volumeStep"`
-	ContractSize      float64 `json:"contractSize"`
-	CurrencyBase      string  `json:"currencyBase"`
-	CurrencyProfit    string  `json:"currencyProfit"`
-	CurrencyMargin    string  `json:"currencyMargin"`
-	SwapLong          float64 `json:"swapLong"`
-	SwapShort         float64 `json:"swapShort"`
-	QuoteSessionStart string  `json:"quoteSessionStart"`
-	QuoteSessionEnd   string  `json:"quoteSessionEnd"`
+type SymbolParams struct {
+	Symbol      string      `json:"symbol"`
+	SymbolInfo  SymbolInfo  `json:"symbolInfo"`
+	SymbolGroup SymbolGroup `json:"symbolGroup"`
+}
+
+type SymbolInfo struct {
+	UpdateTime      int64   `json:"updateTime"`
+	Currency        string  `json:"currency"`
+	Isin            string  `json:"isin"`
+	Description     string  `json:"description"`
+	Basis           string  `json:"basis"`
+	RefToSite       string  `json:"refToSite"`
+	Custom          int     `json:"custom"`
+	ProfitCurrency  string  `json:"profitCurrency"`
+	MarginCurrency  string  `json:"marginCurrency"`
+	Precision       int     `json:"precision"`
+	BkgndColor      int     `json:"bkgndColor"`
+	Digits          int     `json:"digits"`
+	Points          float64 `json:"points"`
+	LimitPoints     float64 `json:"limitPoints"`
+	Id              int     `json:"id"`
+	DepthOfMarket   int     `json:"depthOfMarket"`
+	Spread          int     `json:"spread"`
+	TickValue       float64 `json:"tickValue"`
+	TickSize        float64 `json:"tickSize"`
+	ContractSize    float64 `json:"contractSize"`
+	GtcMode         string  `json:"gtcMode"`
+	CalcMode        string  `json:"calcMode"`
+	SettlementPrice float64 `json:"settlementPrice"`
+	LowerLimit      float64 `json:"lowerLimit"`
+	UpperLimit      float64 `json:"upperLimit"`
+	FaceValue       float64 `json:"faceValue"`
+	AccruedInterest float64 `json:"accruedInterest"`
+	FirstTradeTime  int     `json:"firstTradeTime"`
+	LastTradeTime   int     `json:"lastTradeTime"`
+	BidTickvalue    float64 `json:"bid_tickvalue"`
+	AskTickvalue    float64 `json:"ask_tickvalue"`
+}
+type SymbolGroup struct {
+	GroupName         string    `json:"groupName"`
+	DeviationRate     int       `json:"deviationRate"`
+	RoundRate         int       `json:"roundRate"`
+	TradeMode         string    `json:"tradeMode"`
+	Sl                int       `json:"sl"`
+	Tp                int       `json:"tp"`
+	TradeType         string    `json:"tradeType"`
+	FillPolicy        string    `json:"fillPolicy"`
+	Expiration        string    `json:"expiration"`
+	OrderFlags        int       `json:"orderFlags"`
+	PriceTimeout      int       `json:"priceTimeout"`
+	RequoteTimeout    int       `json:"requoteTimeout"`
+	RequestLots       int       `json:"requestLots"`
+	Tmp1              int       `json:"tmp1"`
+	MinVolume         int       `json:"minVolume"`
+	MaxVolume         int64     `json:"maxVolume"`
+	VolumeStep        int       `json:"volumeStep"`
+	InitialMargin     float64   `json:"initialMargin"`
+	MaintenanceMargin float64   `json:"maintenanceMargin"`
+	InitMarginRate    []float64 `json:"initMarginRate"`
+	MntnMarginRate    []float64 `json:"mntnMarginRate"`
+	HedgedMargin      float64   `json:"hedgedMargin"`
+	SwapType          string    `json:"swapType"`
+	SwapLong          float64   `json:"swapLong"`
+	SwapShort         float64   `json:"swapShort"`
+	ThreeDaysSwap     string    `json:"threeDaysSwap"`
+	SwapRates         []float64 `json:"swapRates"`
+	MinLots           float64   `json:"minLots"`
+	MaxLots           float64   `json:"maxLots"`
+	LotsStep          float64   `json:"lotsStep"`
 }
 
 // Bar แท่งเทียน

@@ -27,7 +27,7 @@ func (s *SymbolService) GetList() ([]string, error) {
 }
 
 // GetParams ดึงพารามิเตอร์ของสัญลักษณ์
-func (s *SymbolService) GetParams(symbol string) (*Symbol, error) {
+func (s *SymbolService) GetParams(symbol string) (*SymbolParams, error) {
 	if s.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
@@ -37,17 +37,17 @@ func (s *SymbolService) GetParams(symbol string) (*Symbol, error) {
 		"symbol": symbol,
 	}
 
-	var symbolInfo Symbol
-	err := s.client.get("/SymbolParams", queryParams, &symbolInfo)
+	var symbolParams SymbolParams
+	err := s.client.get("/SymbolParams", queryParams, &symbolParams)
 	if err != nil {
 		return nil, err
 	}
 
-	return &symbolInfo, nil
+	return &symbolParams, nil
 }
 
 // GetParamsMany ดึงพารามิเตอร์หลายสัญลักษณ์
-func (s *SymbolService) GetParamsMany(symbols []string) ([]Symbol, error) {
+func (s *SymbolService) GetParamsMany(symbols []string) ([]SymbolParams, error) {
 	if s.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
@@ -60,13 +60,13 @@ func (s *SymbolService) GetParamsMany(symbols []string) ([]Symbol, error) {
 		queryParams[fmt.Sprintf("symbols[%d]", i)] = symbol
 	}
 
-	var symbolInfos []Symbol
-	err := s.client.get("/SymbolParamsMany", queryParams, &symbolInfos)
+	var symbolParams []SymbolParams
+	err := s.client.get("/SymbolParamsMany", queryParams, &symbolParams)
 	if err != nil {
 		return nil, err
 	}
 
-	return symbolInfos, nil
+	return symbolParams, nil
 }
 
 // GetSessions ดึงข้อมูลเซสชันของสัญลักษณ์
@@ -90,7 +90,7 @@ func (s *SymbolService) GetSessions(symbol string) (map[string]interface{}, erro
 }
 
 // GetAll ดึงสัญลักษณ์ทั้งหมด (รวมข้อมูล)
-func (s *SymbolService) GetAll() ([]Symbol, error) {
+func (s *SymbolService) GetAll() ([]SymbolInfo, error) {
 	if s.client.token == "" {
 		return nil, fmt.Errorf("not connected")
 	}
@@ -99,7 +99,7 @@ func (s *SymbolService) GetAll() ([]Symbol, error) {
 		"id": s.client.token,
 	}
 
-	var symbols []Symbol
+	var symbols []SymbolInfo
 	err := s.client.get("/Symbols", queryParams, &symbols)
 	if err != nil {
 		return nil, err
