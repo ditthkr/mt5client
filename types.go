@@ -32,7 +32,7 @@ type Account struct {
 
 // Order คำสั่งซื้อขาย
 type Order struct {
-	Ticket            uint64    `json:"ticket"`
+	Ticket            int64     `json:"ticket"`
 	Profit            float64   `json:"profit"`
 	OrderType         string    `json:"orderType"`
 	Symbol            string    `json:"symbol"`
