@@ -56,36 +56,27 @@ type Order struct {
 
 // UnmarshalJSON custom unmarshal สำหรับ Order
 func (o *Order) UnmarshalJSON(data []byte) error {
-	// 1. สร้าง Alias
 	type Alias Order
 
-	// 2. สร้าง aux struct
 	aux := &struct {
-		OpenTime  string `json:"openTime"`  // รับเป็น string
-		CloseTime string `json:"closeTime"` // รับเป็น string
-		*Alias           // embed Alias
+		OpenTime  string `json:"openTime"`  // ← ดักจับเป็น string
+		CloseTime string `json:"closeTime"` // ← ดักจับเป็น string
+		*Alias
 	}{
 		Alias: (*Alias)(o),
 	}
 
-	// 3. Unmarshal JSON → aux
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
 	}
 
-	// 4. แปลง string → time.Time
-	if aux.OpenTime != "" {
-		t, err := time.Parse("2006-01-02 15:04:05", aux.OpenTime)
-		if err == nil {
-			o.OpenTime = t
-		}
+	// แปลงจาก timestamp → time.Time (ไม่สนใจ string)
+	if o.OpenTimestampUTC > 0 {
+		o.OpenTime = time.UnixMilli(o.OpenTimestampUTC)
 	}
 
-	if aux.CloseTime != "" {
-		t, err := time.Parse("2006-01-02 15:04:05", aux.CloseTime)
-		if err == nil {
-			o.CloseTime = t
-		}
+	if o.CloseTimestampUTC > 0 {
+		o.CloseTime = time.UnixMilli(o.CloseTimestampUTC)
 	}
 
 	return nil
