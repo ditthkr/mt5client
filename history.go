@@ -19,13 +19,17 @@ func (r *HistoryService) GetOrders(from, to string) ([]Order, error) {
 		"to":   to,
 	}
 
-	var orders []Order
-	err := r.client.get("/OrderHistory", queryParams, &orders)
+	type OrdersResponse struct {
+		Orders []Order `json:"orders"`
+	}
+	var response OrdersResponse
+
+	err := r.client.get("/OrderHistory", queryParams, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return orders, nil
+	return response.Orders, nil
 }
 
 // GetOrdersPagination ดึงประวัติคำสั่งแบบแบ่งหน้า
