@@ -428,23 +428,48 @@ func (r *ServiceFunctions) calculateTickValue(symbolInfo *SymbolInfo, symbol str
 		return tickValue, nil
 	}
 
-	// กรณีที่ 3: ProfitCurrency เป็นสกุลอื่นๆ
-	// ต้องแปลงผ่าน conversion rate
-	// สำหรับตอนนี้จะใช้วิธีประมาณผ่าน Quote API
-	quote, err := r.client.Quote.Get(symbol)
+	// กรณีที่ 3: ProfitCurrency เป็นสกุลอื่นๆ (Cross pairs)
+	// ต้องแปลงผ่าน conversion rate จาก ProfitCurrency -> USD
+
+	// ตรวจสอบว่ามี suffix หรือไม่ (เช่น AUDNZDm -> m, EURUSD.raw -> .raw)
+	suffix := ""
+	baseCurrencyPairLen := 6 // ความยาวปกติของ currency pair (เช่น EURUSD)
+	if len(symbol) > baseCurrencyPairLen {
+		suffix = symbol[baseCurrencyPairLen:]
+	}
+
+	// หา conversion pair (เช่น NZD -> NZDUSD, EUR -> EURUSD) พร้อม suffix
+	conversionSymbol := symbolInfo.ProfitCurrency + "USD" + suffix
+
+	// ลองดึง quote ของ conversion pair
+	conversionQuote, err := r.client.Quote.Get(conversionSymbol)
 	if err != nil {
-		return 0, fmt.Errorf("failed to get quote for %s: %w", symbol, err)
+		// ถ้าไม่เจอ เช่น NZDUSD อาจจะต้องลอง USDNZD แทน
+		reverseSymbol := "USD" + symbolInfo.ProfitCurrency + suffix
+		conversionQuote, err = r.client.Quote.Get(reverseSymbol)
+		if err != nil {
+			return 0, fmt.Errorf("unsupported profit currency %s for symbol %s, cannot find conversion pair %s or %s",
+				symbolInfo.ProfitCurrency, symbol, conversionSymbol, reverseSymbol)
+		}
+
+		// ถ้าใช้ reverse pair (USDNZD) ต้องใช้ 1/price
+		conversionRate := (conversionQuote.Bid + conversionQuote.Ask) / 2
+		if conversionRate <= 0 {
+			return 0, fmt.Errorf("invalid conversion rate for %s", reverseSymbol)
+		}
+
+		// TickValue = (Points × ContractSize) / ConversionRate
+		tickValue := (symbolInfo.Points * symbolInfo.ContractSize) / conversionRate
+		return tickValue, nil
 	}
 
-	currentPrice := (quote.Bid + quote.Ask) / 2
-	if currentPrice <= 0 {
-		return 0, fmt.Errorf("invalid quote price for %s", symbol)
+	// ถ้าเจอ direct pair (เช่น NZDUSD, EURUSD)
+	conversionRate := (conversionQuote.Bid + conversionQuote.Ask) / 2
+	if conversionRate <= 0 {
+		return 0, fmt.Errorf("invalid conversion rate for %s", conversionSymbol)
 	}
 
-	// ประมาณการ: สำหรับ cross pairs
-	// TickValue = Points × ContractSize / ConversionRate
-	// โดยที่ ConversionRate ต้องหาจาก ProfitCurrency -> USD
-	// ตอนนี้จะ return error และให้ user implement conversion logic เอง
-	return 0, fmt.Errorf("unsupported profit currency %s for symbol %s, manual conversion required",
-		symbolInfo.ProfitCurrency, symbol)
+	// TickValue = (Points × ContractSize) × ConversionRate
+	tickValue := symbolInfo.Points * symbolInfo.ContractSize * conversionRate
+	return tickValue, nil
 }
