@@ -28,6 +28,7 @@ type EventHandlers struct {
 	OnConnect             func()
 	OnDisconnect          func()
 	OnError               func(error)
+	OnReauthenticate      func() error
 	OnQuote               func(*Quote)
 	OnTickValue           func(*TickValueEvent)
 	OnOrderUpdate         func(*OrderUpdateEvent)
@@ -177,7 +178,25 @@ func (ws *WebSocketClient) reconnectPath(path string, handler func([]byte)) {
 			log.Printf("Reconnecting to %s in %v...", path, delay)
 			time.Sleep(delay)
 
-			err := ws.connectToPath(path, handler)
+			// ตรวจสอบว่า MT5 connection ยังใช้ได้อยู่หรือไม่
+			isConnected, err := ws.client.Connection.IsConnected()
+			if err != nil || !isConnected {
+				log.Printf("MT5 connection lost, attempting to re-authenticate...")
+
+				// เรียก OnReauthenticate handler ถ้ามี
+				if ws.handlers.OnReauthenticate != nil {
+					if err := ws.handlers.OnReauthenticate(); err != nil {
+						log.Printf("Failed to re-authenticate: %v", err)
+						continue
+					}
+					log.Printf("✅ Re-authenticated to MT5")
+				} else {
+					log.Printf("❌ No OnReauthenticate handler set, cannot re-authenticate")
+					continue
+				}
+			}
+
+			err = ws.connectToPath(path, handler)
 			if err != nil {
 				log.Printf("Failed to reconnect to %s: %v", path, err)
 				continue
