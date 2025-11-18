@@ -305,19 +305,35 @@ func (ws *WebSocketClient) handleQuoteMessage(data []byte) {
 		return
 	}
 
-	type RawQuote struct {
-		Type  string `json:"type"`
-		Quote Quote  `json:"data"`
+	// ลองแปลงเป็น generic response ก่อน เพื่อตรวจสอบว่า data เป็น string หรือ object
+	var genericResp struct {
+		Type string          `json:"type"`
+		Data json.RawMessage `json:"data"`
 	}
-	var raw RawQuote
-	if err := json.Unmarshal(data, &raw); err != nil {
+	if err := json.Unmarshal(data, &genericResp); err != nil {
 		if ws.handlers.OnError != nil {
-			ws.handlers.OnError(fmt.Errorf("failed to parse quote: %v", err))
+			ws.handlers.OnError(fmt.Errorf("failed to parse quote response: %v", err))
 		}
 		return
 	}
 
-	ws.handlers.OnQuote(&raw.Quote)
+	// ถ้า data เป็น string (เช่น "connected", "subscribed") ให้ข้ามไป
+	// ตรวจสอบโดยดูว่าขึ้นต้นด้วย " หรือไม่
+	if len(genericResp.Data) > 0 && genericResp.Data[0] == '"' {
+		// เป็น string, ข้ามไป (อาจจะเป็น init message)
+		return
+	}
+
+	// แปลงเป็น Quote object
+	var quote Quote
+	if err := json.Unmarshal(genericResp.Data, &quote); err != nil {
+		if ws.handlers.OnError != nil {
+			ws.handlers.OnError(fmt.Errorf("failed to parse quote data: %v", err))
+		}
+		return
+	}
+
+	ws.handlers.OnQuote(&quote)
 }
 
 func (ws *WebSocketClient) handleTickValueMessage(data []byte) {
